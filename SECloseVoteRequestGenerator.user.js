@@ -2085,7 +2085,6 @@
             this.isQuestionCommentLocked = null;
             this.postIsLocked = null;
             this.postIsCommentLocked = null;
-            this.isQuestionBounty = null;
             this.questionRoombaInfo = null;
             this.questionRoombaDays = null;
             this.questionActiveTime = null;
@@ -2782,11 +2781,6 @@
                 postIsCommentLocked = isPostCommentLocked(post);
                 this.postIsCommentLocked = postIsCommentLocked;
             }
-            var isQuestionBounty = this.isQuestionBounty;
-            if (isQuestionBounty === null) {
-                isQuestionBounty = $('.question-status.bounty, aside.js-post-notice a[href*="/help/bounty"]:contains("bounty")', questionContext).length > 0;
-                this.isQuestionBounty = isQuestionBounty;
-            }
             var questionRoombaInfo = this.questionRoombaInfo;
             var questionRoombaDays = this.questionRoombaDays;
             if (questionRoombaInfo === null || questionRoombaDays === null) {
@@ -2880,9 +2874,6 @@
                 if (requestType === 'cv-pls') {
                     //No need to check for answers as cv-pls is not included in the options for answers.
                     if (this.guiType === 'question') { //This should always be true.
-                        if (isQuestionBounty) {
-                            criticalRequestReasons.push('The question has a bounty that has not yet been awarded.');
-                        }
                         if (closedTimeMs) {
                             criticalRequestReasons.push('The question is already closed.');
                         } else if (!reason.replace(/(?:\boff[\s-\/]*topic\b|\bO[-\/]?T\b)/ig, '').trim()) { // eslint-disable-line no-useless-escape
