@@ -125,6 +125,15 @@
                 name: 'The Stack Exchange Network',
             },
         },
+        SOCVRold: {
+            urlDetectionRegExp: /chat\.stackoverflow\.com\/rooms\/253110(?:$|\/)/,
+            room: {
+                host: 'https://chat.stackoverflow.com',
+                url: 'https://chat.stackoverflow.com/rooms/253110/', // SOCVR old
+                id: '253110',
+                name: 'CV-PLS old questions',
+            },
+        },
     };
 
     //Options
@@ -316,6 +325,7 @@
     //Set some global variables
     const isSocvrSite = socvrModeratedSites.indexOf(window.location.hostname) > -1;
     const isSocvrRoomUrlRegEx = knownRooms.SOCVR.urlDetectionRegExp;
+    const isSocvroldRoomUrlRegEx = knownRooms.SOCVRold.urlDetectionRegExp;
     const isNato = window.location.pathname.indexOf('tools/new-answers-old-questions') > -1;
     const isSuggestedEditReviewPage = /^\/review\/suggested-edits(?:\/|$)/i.test(window.location.pathname);
     const isReviewPage = /^\/review\//i.test(window.location.pathname);
@@ -1474,6 +1484,7 @@
     //function unmarkCurrentRoomTransitionedA(){return unmarkStorageTransitionedA(urlBase + 'room');} //Not currently used
     function isCurrentRoomTransitionedA() { return isStorageTransitionedA(urlBase + 'room'); }
     function isCurrentRoomSOCVR() { return isSocvrRoomUrlRegEx.test(getCurrentRoom()); }
+    function isCurrentRoomSOCVRold() { return isSocvroldRoomUrlRegEx.test(getCurrentRoom()); }
     /* beautify preserve:end */
     /* eslint-enable brace-style */
     function getCurrentKnownRoomKey() {
@@ -2534,6 +2545,7 @@
                 }
             }
             const isSOCVR = isCurrentRoomSOCVR();
+            const isSOCVRold = isCurrentRoomSOCVRold();
             var isGuiReviewSE = this.guiType === 'reviewSE';
             reason = addNatoIfIsNato(reason);
             //Questions and Answers
@@ -2880,9 +2892,11 @@
                             //Nothing but "off-topic".
                             invalidRequestReasons.push('"off-topic" by itself is not a sufficient reason. More detail is required.');
                         }
-                        if (questionActiveTime && isSOCVR) {
-                            if (questionActiveTime + questionActivityWarningAge < Date.now()) {
+                        if (questionActiveTime) {
+                            if (questionActiveTime + questionActivityWarningAge < Date.now() && isSOCVR) {
                                 invalidRequestReasons.push('<span title="Activity that\'s indicated by the &quot;active&quot; date on the question isn\'t the only way to qualify for a cv-pls.\nSome examples of other reasons include: low-traffic tags, mentioned somewhere, a rejected edit, proposed dup, etc.">The question has no recent activity. It <i>may</i> not qualify for a <code>cv-pls</code> request. Please see <a href="https://socvr.org/faq#GEfM-cv-pls-not-a-habit" target="_blank">SOCVR\'s FAQ</a>.</span>');
+                            } else if (questionActiveTime + questionActivityWarningAge > Date.now() && isSOCVRold) {
+                                invalidRequestReasons.push('This question is less than six months old so should be posted to SOCVR instead.');
                             }
                         }
                     } else {
